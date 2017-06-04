@@ -1,0 +1,35 @@
+Napište program, který dostane jako argumenty pøíkazové øádky tøi parametry: vstupní soubor, výstupní soubor a maximální šíøku textu. Všechen text ze vstupního souboru pøeformátuje do výstupního tak, aby každý øádek mìl právì maximální šíøku textu, je-li to možné.
+
+Pokud program obdrží špatné množství argumentù nebo tøetí argument není platné èíslo vìtší než 0, program vypíše na standardní výstup øetìzec "Argument Error". V pøípadì, že vstupní nebo výstupní soubor nejde otevøít (vstupní soubor neexistuje, špatné znaky v názvu, nedostateèná práva, apod.), vypíše program øetìzec "File Error".
+
+Pøi formátování je potøeba dodržet následující pravidla:
+
+Zalomení øádku, tabulátor a mezera (tzn. '\n', '\t' a ' ') považujeme za bílé znaky, vše ostatní za znaky tisknutelné. Pro jednoduchost máte zaruèeno, že znak '\r' v textu není.
+Za slovo považujeme libovolnou sekvenci nebílých znakù, která je z obou stran oddìlena alespoò jedním bílým znakem nebo zaèátkem/koncem souboru. Mìnit smíte pouze bílé znaky, všechna slova musí zùstat pøesnì tak, jak jsou ve vstupním souboru.
+Prázný øádek, øádek obsahující pouze bílé znaky a více takových øádkù za sebou pøedstavuje oddìlovaè odstavcù. Každý odstavec se pak formátuje zvláš pøièemž ve výstupu se odstavce oddìlují jedním prázdným øádkem. Poslední øádek posledního odstavce v souboru musí být také zakonèen (musí obsahovat zalomení øádku), avšak za ním již žádné prázdné øádky nesmí být.
+Odstavec je sázen tak, že na každý øádek vysázíme nejvìtší možný poèet slov (pøi zachování jejich poøadí) tak, aby nebyla pøekroèena maximální šíøka øádku. Mezi jednotlivými slovy musí být alespoò jedna mezera. Pokud na konci øádku zbývá nìjaké volné místo (do maximální šíøky), rozdìlí se toto místo rovnomìrnì mezi slova doplnìním znakù mezer. V pøípadì, že nejde mezery rozdìlit zcela rovnomìrnì, budou mezery pøidìlovány do proluk v poøadí zleva. Tzn. širší proluky jsou více vlevo než užší. Poslední øádek každého odstavce je zarovnaný vlevo, tj. mezi všemi slovy na tomto øádku je právì jedna mezera.
+Ve výstupním souboru nesmí být na žádném øádku mezi posledním znakem posledního slova a znakem konce øádku nikdy žádné bílé znaky.
+Pokud se v textu nachází slovo, které je delší než maximální poèet znakù na øádku, bude toto slovo bez zalomení vysázeno na samostatném øádku. Nachází-li se na jednom øádku samotné slovo, je toto slovo zarovnáno vlevo.
+Výše uvedená pravidla je tøeba dodržet velmi dùslednì, protože výstup vašeho programu bude porovnán se vzorovým výstupem znak po znaku. Rovnìž nedìletje žádné pøedpoklady o velikosti vstupu. Celý vstup a dokonce ani jedniný jeho øádek se nemusí vejít do pamìti.
+
+
+Pøíklad 1:
+$>program.exe plain.txt format.txt 17
+Vstupní soubor plain.txt
+If a train station is where the train stops, what is a work station?
+Výstupní soubor format.txt
+If     a    train
+station  is where
+the  train stops,
+what  is  a  work
+station?
+Pøíklad 2:
+$>program.exe plain.txt format.txt abc
+std. výstup
+Argument Error
+Pøíklad 3:
+Až budete potøebovat nìjaký delší text, na kterém byste mohli otestovat funènost vaší implementace, tak mùžete využít napø. nìjaký generátor tzv. Lorem ipsum textu (napø. zde http://generator.lorem-ipsum.info/, nebo jakýkoliv jiný který vygooglujete). Pro ukázku si mùžete stáhnout soubor LoremIpsum.txt (Unix konce øádkù, tj. jen "\n") s pøedgenerovaným Lorem Ipsum, a k nìmu ukázkový výstup této úlohy pøi nastavení šíøky na 40 znakù: LoremIpsum_Aligned.txt (Unix konce øádkù). 
+
+Pozor: pokud budete vaše øešení spouštìt na Windows, tak ve vlastnosti Environment.NewLine je uložený dvojznak Windows konce øádkù (tj. "\r\n"), tedy všechny výpisy metod TextWriter.WriteLine, apod. vám budou také vypisovat Windows konce øádkù. Podobnì výše uvedený generátor vrací textové soubory s Windows konci øádkù. 
+
+Hint: pokud byste potøebovali pøekódovat nìjaký textový soubor z Windows do Unix koncù øádkù nebo obrácenì, tak na to mùžete využít napø. editor Visual Studia. Pokud ve VS otevøete textový soubor (VS automaticky detektuje "formát" souboru, tj. typ koncù øádkù, pokud jsou použity konzistentnì), tak pak vyberte v položku menu File - Save * as..., v dialogu kliknìte na šipku v tlaèítku Save, vyberte Save with Encoding..., a poté si v Line endings mùžete vybrat cílové kódování koncù øádkù. 

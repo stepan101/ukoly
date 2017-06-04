@@ -1,0 +1,111 @@
+                                              Napište aplikaci, která bude základem e-shopu internetového knihkupectví Nežárka.NET - vaše aplikace bude pøedstavovat implementaci logiky na stranì webového serveru. Po spuštìní obdrží aplikace na standardním vstupu textový popis dat e-shopu (tedy vlastnì reprezentaci dat z relaèní databáze) v následujícím formátu (každý záznam je obsažen na samostatném øádku, jednotlivé položky každého záznamu jsou oddìlené 1 støedníkem; první položka na øádku oznaèuje typ záznamu, resp. zaèátek/konec seznamu datových záznamù):
+
+
+DATA-BEGIN
+BOOK;BookId;BookTitle;BookAuthor;BookPrice
+CUSTOMER;CustId;CustName;CustSurname
+CART-ITEM;CustId;BookId;BookCount
+DATA-END
+Veškerá data ètená aplikací ze standardního vstupu jsou case sensitive, tedy velikost písmen je rozhodující!
+
+Na vstupu jsou nejprve všechny záznamy typu BOOK, pak následují všechny záznamy typu CUSTOMER, pak následují všechny záznamy typu CART-ITEM. Každého typu záznamu mùže být na vstupu libovolné množství (i nula).
+
+Záznam BOOK popisuje informaci o jedné knize, kterou obchod Nežárka.NET nabízí. Záznam CUSTOMER popisuje informace o jednom zaregistrovaném zákazníkovi. Každý zákazník má k sobì pøiøazen právì jeden virtuální nákupní košík. Záznam CART-ITEM popisuje informace o jedné položce v košíku nìjakého zákazníka (pro nìjakou dvojici CustId a BookId je na vstupu maximálnì jeden záznam CART-ITEM). Pokud je zákazníkùv košík prázdný, tak se na vstupu nevyskytuje žádný záznam CART-ITEM s CustId rovné Id tohoto zákazníka. BookCount reprezentuje poèet kusù dané knihy, které má zákazník ve svém košíku. Mùžete poèítat, že k dispozici máte O(n) pamìti, když n je celkový poèet všech záznamù na vstupu (resp. celkový poèet všech záznamù v každém okamžiku reprezentovaný v programu) - tedy se oèekává, že veškerá data o knihách, zákaznících a nákupních košících budete mít neustále v pamìti.
+
+BookId, CustId, BookCount, BookPrice jsou libovolná cela nezáporná èísla (vejdou se do typu int)
+BookTitle, BookAuthor, CustName, CustSurname jsou libovolné textové øetìzce (vèetnì mezer), které nebudou obsahovat žádný výskyt znaku støedník nebo nový øádek.
+BookId, ani CustId nemusí být souvislá posloupnost hodnot.
+Pokud je ve vstupních datech libovolná chyba (text na místì èísla, neznámé klíèové slovo, apod.), tak program na standardní výstup vypíše:
+
+Data error.
+a skonèí.
+
+Základní datový model, který reprezentuje výše popsaná data v C# programu, najdete zde: NezarkaModel.cs
+Tento kód použijte ve své aplikaci. Kód mùžete i dále upravovat a rozšiøovat (napø. o èásti business logiky, která bude popsána dále).
+
+----
+Po naètení vstupních dat dostává aplikace na standardním vstupu pøíkazy od klientù systému (jejich webových prohlížeèù), kde na každém øádku je vždy jeden pøíkaz. Po ukonèení standardního vstupu dojde k ukonèení celé aplikace. Pøíkazy se zpracovávají jeden po druhém, výsledek zpracování každého pøíkazu se vypíše ve formì HTML na standardní výstup. Výstup každého jednotlivého vstupního pøíkazu je na standardním výstupu ukonèen samostatným øádkem, který obsahuje pouze 4 znaky rovnítko (====).
+
+Implementace obchodu Nežárka.NET musí podporovat následujících 5 typy pøíkazù:
+
+GET CustId http://www.nezarka.net/Books
+GET CustId http://www.nezarka.net/Books/Detail/BookId
+GET CustId http://www.nezarka.net/ShoppingCart
+GET CustId http://www.nezarka.net/ShoppingCart/Add/BookId
+GET CustId http://www.nezarka.net/ShoppingCart/Remove/BookId
+Jako výsledek tìchto pøíkazù se generuje jedna z následujících stránek (více viz šablony níže):
+
+SeznamKnih (02-Books.html) - obsahuje spoleèné záhlaví; informace o knihách se zobrazují v HTML tabulce vždy 3 knihy na øádek (pouze u posledního øádku je zleva jen tolik knih, kolik jich zbývá); informace o knihách se zobrazují od první do poslední vždy v poøadí, jak jsou uložené v datovém modelu (poøadí v jakém je vrací vzorová implementace metody GetBooks()), postupnì zleva doprava a shora dolù; pokud je seznam knih prázdný, ve výstupním HTML dokumentu bude na místì dle šablony prázdný HTML element <table>, tedy nebude v nìm ani jedna ze vzorových sekcí <tr> a <td>:
+...
+<table>
+</table>
+...
+InformaceOKnize (šablona/pøíklad: 03-BooksDetail.html) - obsahuje spoleèné záhlaví
+ObsahKošíku (šablona/pøíklad: 04-ShoppingCart.html) - obsahuje spoleèné záhlaví (vždy zobrazuje stav nákupního košíku po provedení pøíkazu); pokud košík neobsahuje žádné položky, zobrazí se místo tabulky položek zvláštní informace (šablona/pøíklad: 05-ShoppingCart-Empty.html).
+ChybnýPøíkaz (šablona/pøíklad: 09-InvalidRequest.html) - NEobsahuje spoleèné záhlaví (ale je validní HTML soubor)
+Spoleèné záhlaví obsahuje køestní jméno aktuálního zákazníka (podle CustId), a menu s odkazy na pøíkazy /Books a /ShoppingCart (u tohoto pøíkazu se zobrazuje aktuální poèet položek v košíku aktuálního zákazníka - dle CustId).
+Pøíkazy mají následující význam:
+
+/Books - beze zmìny dat, zobrazí SeznamKnih
+/Books/Detail/BookId - beze zmìny dat, zobrazí InformaceOKnize pro knihu BookId
+/ShoppingCart - beze zmìny dat, zobrazí ObsahKošíku pro aktuálního zákazníka (dle CustId)
+/ShoppingCart/Add/BookId - pøídá 1 položku (1 kus) BookId do nákupního košíku aktuálního zákazníka (dle CustId); pokud kniha BookId již v košíku je, tak se jen zvìtší poèet kusù o 1; zobrazí ObsahKošíku
+/ShoppingCart/Remove/BookId - odebere 1 položku (1 kus) BookId z nákupního košíku (tj. zmenší poèet kusù o 1); pokud je kniha BookId v košíku jen jednou, tak z košíku odebere celý záznam pro tuto knihu; zobrazí ObsahKošíku
+Pokud je libovolná èást pøíkazu neplatná (napø. jiný typ pøíkazu než GET, špatný formát pøíkazu, neplatné èíslo zákazníka, neplatné èíslo knihy, odebírání knihy která není v košíku zákazníka, apod.), tak se zobrazí ChybnýPøíkaz.
+
+POZOR: Formát generovaných HTML souborù musí pøesnì odpovídat výše uvedeným šablonám.
+
+V tomto archivu Example.zip najdete pøíklad vstupu (soubor NezarkaTest.in) a k nìmu odpovídajícího výstupu (soubor NezarkaTest.out). Pro pøehlednost a možnost vyzkoušení jsou v archivu pøibaleny i soubory 01.html až 11.html, které obsahují výstup NezarkaTest.out "rozsekaný" na výstupy jednotlivých pøíkazù (zakonèovací ==== jsou zde odebrány). Upozornìní: vaším úkolem není takové soubory generovat, vaše aplikace vypisuje vše jen na standardní výstup ve formátu odpovídajícímu NezarkaTest.out.
+
+HINT: Pøi objektovém návrhu vaší aplikace se zkuste zamyslet nad možností použití varianty návrhového vzoru Model-View-Controller (MVC).
+
+----
+OTÁZKA: Jak v programu reprezentovat a vypisovat HTML kód?
+
+ODPOVÌÏ: Asi nejjednodušší a pøehledná varianta je mít pro každý øádek výstupního souboru jedno volání .WriteLine() na vhodném "writeru". Pokud bychom napø. mìli naprogramovat aplikaci, která vždy na standardní výstup vrátí HTML dokument s aktuálním datem a èasem dle následující šablony/pøíkladu (TimeServiceExample.out.html):
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Nezarka.NET: Also a Time Service!</title>
+</head>
+<body>
+    <style type="text/css">
+        pre {
+            line-height: 70%;
+        }
+    </style>
+    <h1><pre>  v,<br />Nezarka.NET: Also a Time Service!</pre></h1>
+    It is 21. 10. 2014 16:20:22 on our server.<br />
+    Enjoy!
+</body>
+</html>
+tak napøíklad následující zdrojový soubor (TimeServiceProgram.cs) by mohl být rozumnou (pro tuto úlohu pøijatelnou) implementací:
+
+using System;
+using System.Collections.Generic;
+
+namespace NezarkaTimeService {
+	class Program {
+		static void Main(string[] args) {
+			Console.WriteLine("<!DOCTYPE html>");
+			Console.WriteLine("<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\">");
+			Console.WriteLine("<head>");
+			Console.WriteLine("    <meta charset=\"utf-8\" />");
+			Console.WriteLine("    <title>Nezarka.NET: Also a Time Service!</title>");
+			Console.WriteLine("</head>");
+			Console.WriteLine("<body>");
+			Console.WriteLine("    <style type=\"text/css\">");
+			Console.WriteLine("        pre {");
+			Console.WriteLine("            line-height: 70%;");
+			Console.WriteLine("        }");
+			Console.WriteLine("    </style>");
+			Console.WriteLine("    <h1><pre>  v,<br />Nezarka.NET: Also a Time Service!</pre></h1>");
+			Console.WriteLine("    It is " + DateTime.Now + " on our server.<br />");
+			Console.WriteLine("    Enjoy!");
+			Console.WriteLine("</body>");
+			Console.WriteLine("</html>");
+		}
+	}
+}
